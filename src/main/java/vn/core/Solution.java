@@ -1,64 +1,71 @@
 package vn.core;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import vn.core.accountant.dto.ConvertData;
+import vn.core.accountant.dto.Range;
+import vn.core.accountant.dto.SolutionData;
+
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.*;
-import java.util.stream.Collectors;
 
-class Solution {
+import static vn.core.accountant.util.ExcelUtil.getDataBtAddress;
 
-    public static void main(String[] args) throws IOException {
-        File inputFile = new File("opt/read.txt");
-        if (!inputFile.exists()) {
-            System.out.println("[solution] can not found file input");
-            return;
-        }
-        int n, m = 0;
-        List<Long> inputList = new ArrayList<>();
-        List<Long> targetList = new ArrayList<>();
-        try {
-            Scanner scanner = new Scanner(inputFile);
-            while (scanner.hasNextLine()) {
-                n = scanner.nextInt();
-                for (int i = 0; i < n; i++) {
-                    inputList.add(scanner.nextLong());
-                }
-                inputList.sort(Long::compare);
-                m = scanner.nextInt();
-                for (int i = 0; i < m; i++) {
-                    targetList.add(scanner.nextLong());
+public class Solution {
+
+    public static List<SolutionData> calculator(ConvertData data) throws IOException {
+        String fileExcelPath = "/opt/input.xlsx";
+        XSSFWorkbook workbook;
+        FileInputStream inputStream = new FileInputStream(fileExcelPath);
+        workbook = new XSSFWorkbook(inputStream);
+        XSSFSheet sheet;
+        sheet = workbook.getSheet("VNPT");
+
+        List<Long> inputList = getValueFromFile(sheet, data.getValues());
+        inputList.sort(Long::compare);
+
+        List<SolutionData> response = new LinkedList<>();
+
+        for (int i = 0; i < data.getTargets().size(); i++) {
+            List<Range> ranges = data.getTargets();
+            for (Range range : ranges) {
+                for (int j = range.getStart(); j <= range.getEnd(); j++) {
+                    SolutionData solutionData = new SolutionData();
+                    solutionData.setAddress(range.getName() + j);
+                    Object value = getDataBtAddress(sheet, range.getName() + j);
+                    if (!(value instanceof Double)) {
+                        continue;
+                    }
+                    List<Long> result = find(inputList, ((Double) value).longValue());
+                    if (result != null && !result.isEmpty()) {
+                        solutionData.setList(result);
+                    }
+                    response.add(solutionData);
                 }
             }
-        } catch (FileNotFoundException e) {
-            System.out.println("[solution] can not read file input");
-            return;
+
         }
-        File outputFile = new File("opt/write.txt");
-        try {
-            outputFile.createNewFile();
-        } catch (IOException e) {
-            System.out.println("[solution] can not create file output");
-        }
-        FileWriter writer = new FileWriter(outputFile, false);
-        Solution solution = new Solution();
-        for (int i = 0; i < m; i++) {
-            List<Long> result = solution.find(inputList, targetList.get(i));
-            if (result != null && !result.isEmpty()) {
-                writer.write(Integer.toString(result.size()));
-                writer.write(" ");
-                writer.write(result.stream().map(Object::toString).collect(Collectors.joining(" ")));
-                writer.write("\n");
-            } else {
-                writer.write("0");
-                writer.write("\n");
-            }
-        }
-        writer.close();
+        return response;
     }
 
-    public List<Long> find(List<Long> nums, long target) {
+    private static List<Long> getValueFromFile(XSSFSheet sheet, List<Range> ranges) {
+        List<Long> list = new LinkedList<>();
+        for (int i = 0; i < ranges.size(); i++) {
+            Range range = ranges.get(i);
+            for (int j = range.getStart(); j <= range.getEnd(); j++) {
+                Object value = getDataBtAddress(sheet, range.getName() + j);
+                if (value instanceof Long)
+                    list.add((Long) value);
+                if (value instanceof Double)
+                    list.add(((Double) value).longValue());
+            }
+        }
+        return list;
+    }
+
+
+    public static List<Long> find(List<Long> nums, long target) {
         for (int i = 0; i < nums.size(); i++) {
             List<Long> list = find(i, nums, target);
             if (list != null)
@@ -67,7 +74,7 @@ class Solution {
         return null;
     }
 
-    public List<Long> find(int level, List<Long> nums, long target) {
+    public static List<Long> find(int level, List<Long> nums, long target) {
         List<Long> list;
         switch (level) {
             case 0:
@@ -108,13 +115,13 @@ class Solution {
         return null;
     }
 
-    public List<Long> sum1(List<Long> nums, long target) {
+    public static List<Long> sum1(List<Long> nums, long target) {
         if (nums.contains(target))
             return Collections.singletonList(target);
         return null;
     }
 
-    public List<Long> sum2(List<Long> nums, long target) {
+    public static List<Long> sum2(List<Long> nums, long target) {
         int l, h;
         long sum;
         l = 0;
@@ -133,7 +140,7 @@ class Solution {
         return null;
     }
 
-    public List<Long> sum3(List<Long> nums, long target) {
+    public static List<Long> sum3(List<Long> nums, long target) {
         int l, h;
         long sum;
 
@@ -155,7 +162,7 @@ class Solution {
         return null;
     }
 
-    public List<Long> sum4(List<Long> nums, long target) {
+    public static List<Long> sum4(List<Long> nums, long target) {
         int n = nums.size();
         for (int i = 0; i < n - 3; i++) {
             for (int j = i + 1; j < n - 2; j++) {

@@ -5,6 +5,66 @@
     <title>Title</title>
 </head>
 <body id="content">
+    <body>
+    <h2>Demo Spring Boot Upload File</h2>
+    <form method="post" th:action="@{/payment-calculation/uploadFile}" enctype="multipart/form-data" th:object="${uploadFile}">
+        File: <input type="file" th:field="*{multipartFile}" /> <br /> <br />
+        <input type="submit" value="Submit" />
+    </form>
 
+    <form th:if="${data}" method="post" th:action="@{/payment-calculation/calculation}" enctype="multipart/form-data" th:object="${data}">
+        <input type="hidden" th:field="*{filename}" />
+        <input hidden="hidden" type="number" name="size-values" th:value = "${data.values?.size()}">
+        <input hidden="hidden" type="number" name="size-targets" th:value = "${data.targets?.size()}">
+        <h1>Danh sách Giá trị</h1>
+        <table>
+            <thead>
+            <tr>
+                <th> Column Name</th>
+                <th> Row start</th>
+                <th> Row end</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="v, itemStat : ${data.values}">
+                <td>
+                    <input th:name="|values[${itemStat.index}].name|" th:value="${v.name}"/>
+                </td>
+                <td>
+                    <input th:name="|values[${itemStat.index}].start|" th:value="${v.start}"/>
+                </td>
+                <td>
+                    <input th:name="|values[${itemStat.index}].end|" th:value="${v.end}"/>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <h1>Danh sách Tổng</h1>
+        <table>
+            <thead>
+            <tr>
+                <th> Column Name</th>
+                <th> Row start</th>
+                <th> Row end</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="v, itemStat : ${data.targets}">
+                <td>
+                    <input th:name="|targets[${itemStat.index}].name|" th:value="${v.name}"/>
+                </td>
+                <td>
+                    <input th:name="|targets[${itemStat.index}].start|" th:value="${v.start}"/>
+                </td>
+                <td>
+                    <input th:name="|targets[${itemStat.index}].end|" th:value="${v.end}"/>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <input type="submit" value="Submit" />
+    </form>
+
+    </body>
 </body>
 </html>

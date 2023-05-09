@@ -1,38 +1,48 @@
 package vn.core;
 
-import org.apache.poi.ss.usermodel.*;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.util.CellReference;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import vn.core.dto.ConvertData;
-import vn.core.dto.IndexCell;
-import vn.core.dto.Range;
+import org.springframework.web.multipart.MultipartFile;
+import vn.core.accountant.dto.ConvertData;
+import vn.core.accountant.dto.IndexCell;
+import vn.core.accountant.dto.Range;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static vn.core.accountant.util.ExcelUtil.*;
+
 public class ReadFile {
     private static final String START_VALUE = "Giá trị hóa đơn";
     private static final String REGEX_TARGET = "Tiền về\\s*(\\d{1,2})(\\S|\\s)(\\d{1,2})(\\S|\\s)(\\d{2,4})";
 
-    private static final String REGEX_ADDRESS = "([a-zA-Z]+)(\\d+)";
-
-    public ConvertData getFromFileExcel() throws IOException {
-        //
-//        FileUtils.cleanDirectory(new File("/opt"));
-//        System.out.println("[read] delete temp file");
-        //
-        String fileExcelPath = "/opt/Tách-VNPT.xlsx";
+    public static ConvertData getFromFileExcel(MultipartFile multipartFile) throws IOException {
+        File folderUpload = new File("/opt");
+        if (!folderUpload.exists()) {
+            folderUpload.mkdirs();
+        }
         XSSFWorkbook workbook;
-        FileInputStream inputStream = new FileInputStream(fileExcelPath);
+        InputStream inputStream = new BufferedInputStream(multipartFile.getInputStream());
+        //
+        String fileExtension = FilenameUtils.getExtension(multipartFile.getOriginalFilename());
+        File file = new File( "/opt/input." + fileExtension);
+        OutputStream outputStream = new FileOutputStream(file);
+        IOUtils.copy(inputStream, outputStream);
+        outputStream.close();
+        //
+        inputStream = new BufferedInputStream(multipartFile.getInputStream());
         workbook = new XSSFWorkbook(inputStream);
         XSSFSheet sheet;
         sheet = workbook.getSheet("VNPT");
@@ -62,6 +72,7 @@ public class ReadFile {
         }
 
         ConvertData data = new ConvertData();
+        data.setFilename(multipartFile.getOriginalFilename());
 
         List<Range> ranges = new LinkedList<>();
         Range range = new Range();
@@ -137,59 +148,9 @@ public class ReadFile {
         }
 
         data.setTargets(ranges);
+
+        inputStream.close();
+
         return data;
-    }
-
-
-
-    private static String nextColumn(IndexCell indexCell) {
-        int colIdx = CellReference.convertColStringToIndex(indexCell.getColName()) + 1;
-        String colName = CellReference.convertNumToColString(colIdx);
-        return colName + indexCell.getRowNum();
-    }
-
-    private static String nextColumn(String colName) {
-        int colIdx = CellReference.convertColStringToIndex(colName) + 1;
-        return CellReference.convertNumToColString(colIdx);
-    }
-
-    private static IndexCell getIndexCell(String address) {
-        Pattern pattern = Pattern.compile(REGEX_ADDRESS);
-        Matcher matcher = pattern.matcher(address);
-        if (!matcher.find())
-            return null;
-        return new IndexCell(matcher.group(1), Integer.valueOf(matcher.group(2)));
-    }
-
-    private static Object getCellValue(Cell cell) {
-        CellType cellType = cell.getCellType();
-        Object cellValue = null;
-        switch (cellType) {
-            case BOOLEAN:
-                cellValue = cell.getBooleanCellValue();
-                break;
-            case FORMULA:
-                Workbook workbook = cell.getSheet().getWorkbook();
-                FormulaEvaluator evaluator = workbook.getCreationHelper().createFormulaEvaluator();
-                cellValue = evaluator.evaluate(cell).getNumberValue();
-                break;
-            case NUMERIC:
-                cellValue = cell.getNumericCellValue();
-                break;
-            case STRING:
-                cellValue = cell.getStringCellValue();
-                break;
-            default:
-                break;
-        }
-        return cellValue;
-    }
-
-    private static Long parseLong(Object value) {
-        if (value instanceof Long)
-            return (Long) value;
-        if (value instanceof Double)
-            return ((Double) value).longValue();
-        return 0L;
     }
 }
