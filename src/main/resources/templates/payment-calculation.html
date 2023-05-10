@@ -15,14 +15,11 @@
             <label class="form-label">File:</label>
             <input class="form-control" type="file" th:field="*{multipartFile}" required/> <br /> <br />
             <label class="form-label">Sheet name:</label>
-            <input type="text" class="form-control" th:field="*{sheetName}" placeholder="if field is not entered, default get first sheet of file"> <br /> <br />
+            <input type="text" class="form-control" autocomplete="off" th:field="*{sheetName}" placeholder="if field is not entered, default get first sheet of file"> <br /> <br />
             <input class="btn btn-primary" type="submit" value="Process" />
             <button type="button" class="add btn btn-ìno" data-bs-toggle="collapse" data-bs-target="#collapseExample" >User Manual</button>
-            <div class="collapse" id="collapseExample">
-                <div class="card card-body">
-                    Some placeholder content for the collapse component. This panel is hidden by default but revealed when the user activates the relevant trigger.
-                </div>
-            </div>
+            <br/> <br/>
+            <input disabled th:if="${error}" type="text" class="form-control" style="color: red" th:value="${error}">
         </form>
     </div>
 

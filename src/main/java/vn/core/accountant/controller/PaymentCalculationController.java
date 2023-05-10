@@ -44,7 +44,8 @@ public class PaymentCalculationController {
             ConvertData data = ReadFile.getFromFileExcel(multipartFile, uploadFile.getSheetName());
             data.setSheetName(uploadFile.getSheetName());
             model.addAttribute("data", data);
-        } catch (IOException e) {
+        } catch (Exception e) {
+            model.addAttribute("error", "Please re-check file upload or sheet name");
             e.printStackTrace();
         }
         return "payment-calculation";
