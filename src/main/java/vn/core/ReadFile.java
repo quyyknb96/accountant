@@ -2,6 +2,7 @@ package vn.core;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.logging.log4j.util.Strings;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
@@ -28,7 +29,7 @@ public class ReadFile {
     private static final String START_VALUE = "Giá trị hóa đơn";
     private static final String REGEX_TARGET = "Tiền về\\s*(\\d{1,2})(\\S|\\s)(\\d{1,2})(\\S|\\s)(\\d{2,4})";
 
-    public static ConvertData getFromFileExcel(MultipartFile multipartFile) throws IOException {
+    public static ConvertData getFromFileExcel(MultipartFile multipartFile, String sheetName) throws IOException {
         File folderUpload = new File("/opt");
         if (!folderUpload.exists()) {
             folderUpload.mkdirs();
@@ -45,7 +46,10 @@ public class ReadFile {
         inputStream = new BufferedInputStream(multipartFile.getInputStream());
         workbook = new XSSFWorkbook(inputStream);
         XSSFSheet sheet;
-        sheet = workbook.getSheet("VNPT");
+        if (Strings.isBlank(sheetName))
+            sheet = workbook.getSheetAt(0);
+        else
+            sheet = workbook.getSheet(sheetName);
 
         Iterator<Row> rows = sheet.iterator();
         List<String> valueNames = new LinkedList<>();

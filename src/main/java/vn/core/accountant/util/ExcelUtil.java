@@ -15,6 +15,7 @@ import java.util.regex.Pattern;
 
 public class ExcelUtil {
     private static final String REGEX_ADDRESS = "([a-zA-Z]+)(\\d+)";
+    private static final String REGEX_COLUMN_NAME = "([a-zA-Z]+)";
 
     public static Object getCellValue(Cell cell) {
         CellType cellType = cell.getCellType();
@@ -58,7 +59,7 @@ public class ExcelUtil {
     public static IndexCell getIndexCell(String address) {
         Pattern pattern = Pattern.compile(REGEX_ADDRESS);
         Matcher matcher = pattern.matcher(address);
-        if (!matcher.find())
+        if (!matcher.matches())
             return null;
         return new IndexCell(matcher.group(1), Integer.valueOf(matcher.group(2)));
     }
@@ -72,5 +73,11 @@ public class ExcelUtil {
         if (cell == null)
             return null;
         return getCellValue(cell);
+    }
+
+    public static boolean checkColumnName(String colName) {
+        Pattern pattern = Pattern.compile(REGEX_COLUMN_NAME);
+        Matcher matcher = pattern.matcher(colName);
+        return matcher.matches();
     }
 }

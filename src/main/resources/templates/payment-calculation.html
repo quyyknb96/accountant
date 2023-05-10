@@ -1,70 +1,94 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layouts/main-layout :: main-fragment(cssStyle=~{::style},
+                                                        content=~{::#content},
+                                                        script=~{::script})}">
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    <script type="text/javascript" th:src="@{/payment-calculation.js}"></script>
 </head>
-<body id="content">
-    <body>
-    <h2>Demo Spring Boot Upload File</h2>
-    <form method="post" th:action="@{/payment-calculation/uploadFile}" enctype="multipart/form-data" th:object="${uploadFile}">
-        File: <input type="file" th:field="*{multipartFile}" /> <br /> <br />
-        <input type="submit" value="Submit" />
-    </form>
+<body class="container" id="content">
+    <div class="col-sm-8">
+        <h3>Upload File</h3>
+        <form class="col-sm-8 col-md-8" method="post" th:action="@{/payment-calculation/uploadFile}" enctype="multipart/form-data" th:object="${uploadFile}">
+            <label class="form-label">File:</label>
+            <input class="form-control" type="file" th:field="*{multipartFile}" /> <br /> <br />
+            <label class="form-label">Sheet name:</label>
+            <input type="text" class="form-control" th:field="*{sheetName}" placeholder="if field is not entered, default get first sheet of file"> <br /> <br />
+            <input class="btn btn-primary" type="submit" value="Process" />
+            <button type="button" class="add btn btn-ìno" data-bs-toggle="collapse" data-bs-target="#collapseExample" >User Manual</button>
+            <div class="collapse" id="collapseExample">
+                <div class="card card-body">
+                    Some placeholder content for the collapse component. This panel is hidden by default but revealed when the user activates the relevant trigger.
+                </div>
+            </div>
+        </form>
+    </div>
 
-    <form th:if="${data}" method="post" th:action="@{/payment-calculation/calculation}" enctype="multipart/form-data" th:object="${data}">
-        <input type="hidden" th:field="*{filename}" />
-        <input hidden="hidden" type="number" name="size-values" th:value = "${data.values?.size()}">
-        <input hidden="hidden" type="number" name="size-targets" th:value = "${data.targets?.size()}">
-        <h1>Danh sách Giá trị</h1>
-        <table>
-            <thead>
-            <tr>
-                <th> Column Name</th>
-                <th> Row start</th>
-                <th> Row end</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="v, itemStat : ${data.values}">
-                <td>
-                    <input th:name="|values[${itemStat.index}].name|" th:value="${v.name}"/>
-                </td>
-                <td>
-                    <input th:name="|values[${itemStat.index}].start|" th:value="${v.start}"/>
-                </td>
-                <td>
-                    <input th:name="|values[${itemStat.index}].end|" th:value="${v.end}"/>
-                </td>
-            </tr>
-            </tbody>
-        </table>
-        <h1>Danh sách Tổng</h1>
-        <table>
-            <thead>
-            <tr>
-                <th> Column Name</th>
-                <th> Row start</th>
-                <th> Row end</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="v, itemStat : ${data.targets}">
-                <td>
-                    <input th:name="|targets[${itemStat.index}].name|" th:value="${v.name}"/>
-                </td>
-                <td>
-                    <input th:name="|targets[${itemStat.index}].start|" th:value="${v.start}"/>
-                </td>
-                <td>
-                    <input th:name="|targets[${itemStat.index}].end|" th:value="${v.end}"/>
-                </td>
-            </tr>
-            </tbody>
-        </table>
-        <input type="submit" value="Submit" />
-    </form>
-
-    </body>
+    <div class="col-sm-8">
+        <form th:if="${data}" method="post" th:action="@{/payment-calculation/calculation}" enctype="multipart/form-data" th:object="${data}">
+            <input type="hidden" th:field="*{filename}" />
+            <input id="value-last-index" hidden="hidden" type="number" name="size-values" th:value = "${data.values?.size()}">
+            <input id="target-last-index" hidden="hidden" type="number" name="size-targets" th:value = "${data.targets?.size()}">
+            <h3>Danh sách Giá trị</h3>
+            <table class="table table-bordered" id="values">
+                <thead>
+                <tr>
+                    <th> Column Name</th>
+                    <th> Row start</th>
+                    <th> Row end</th>
+                    <th> Action </th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="v, itemStat : ${data.values}">
+                    <td>
+                        <input autocomplete="off" class="form-control" th:name="|values[${itemStat.index}].name|" th:value="${v.name}"/>
+                    </td>
+                    <td>
+                        <input autocomplete="off" class="form-control" type="number" th:name="|values[${itemStat.index}].start|" th:value="${v.start}"/>
+                    </td>
+                    <td>
+                        <input autocomplete="off" class="form-control" type="number" th:name="|values[${itemStat.index}].end|" th:value="${v.end}"/>
+                    </td>
+                    <td><input class="form-control remove-row btn btn-danger" type="button" value="Remove" /></td>
+                </tr>
+                </tbody>
+            </table>
+            <button type="button" class="add btn btn-success" data-table-name="#values" data-name-input="values" data-tag-last-index="#value-last-index">ADD</button>
+            <br/>
+            <h3>Danh sách Tổng</h3>
+            <table class="table table-bordered" id="targets">
+                <thead>
+                <tr>
+                    <th> Column Name</th>
+                    <th> Row start</th>
+                    <th> Row end</th>
+                    <th> Action </th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="v, itemStat : ${data.targets}">
+                    <td>
+                        <input autocomplete="off" class="form-control" th:name="|targets[${itemStat.index}].name|" th:value="${v.name}"/>
+                    </td>
+                    <td>
+                        <input autocomplete="off" class="form-control" type="number" th:name="|targets[${itemStat.index}].start|" th:value="${v.start}"/>
+                    </td>
+                    <td>
+                        <input autocomplete="off" class="form-control" type="number" th:name="|targets[${itemStat.index}].end|" th:value="${v.end}"/>
+                    </td>
+                    <td><input class="form-control remove-row btn btn-danger" type="button" value="Remove" /></td>
+                </tr>
+                </tbody>
+            </table>
+            <button type="button" class="add btn btn-success" data-table-name="#targets" data-name-input="targets" data-tag-last-index="#target-last-index">ADD</button>
+            <br/>
+            <br/>
+            <br/>
+            <input class="btn btn-primary" type="submit" value="Download Result" />
+        </form>
+    </div>
 </body>
 </html>

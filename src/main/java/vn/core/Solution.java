@@ -1,5 +1,6 @@
 package vn.core;
 
+import org.apache.logging.log4j.util.Strings;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import vn.core.accountant.dto.ConvertData;
@@ -10,6 +11,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.*;
 
+import static vn.core.accountant.util.ExcelUtil.checkColumnName;
 import static vn.core.accountant.util.ExcelUtil.getDataBtAddress;
 
 public class Solution {
@@ -20,31 +22,34 @@ public class Solution {
         FileInputStream inputStream = new FileInputStream(fileExcelPath);
         workbook = new XSSFWorkbook(inputStream);
         XSSFSheet sheet;
-        sheet = workbook.getSheet("VNPT");
+        if (Strings.isBlank(data.getSheetName()))
+            sheet = workbook.getSheetAt(0);
+        else
+            sheet = workbook.getSheet(data.getSheetName());
 
         List<Long> inputList = getValueFromFile(sheet, data.getValues());
         inputList.sort(Long::compare);
 
         List<SolutionData> response = new LinkedList<>();
 
-        for (int i = 0; i < data.getTargets().size(); i++) {
-            List<Range> ranges = data.getTargets();
-            for (Range range : ranges) {
-                for (int j = range.getStart(); j <= range.getEnd(); j++) {
-                    SolutionData solutionData = new SolutionData();
-                    solutionData.setAddress(range.getName() + j);
-                    Object value = getDataBtAddress(sheet, range.getName() + j);
-                    if (!(value instanceof Double)) {
-                        continue;
-                    }
-                    List<Long> result = find(inputList, ((Double) value).longValue());
-                    if (result != null && !result.isEmpty()) {
-                        solutionData.setList(result);
-                    }
-                    response.add(solutionData);
-                }
-            }
 
+        List<Range> ranges = data.getTargets();
+        for (Range range : ranges) {
+            if (!checkColumnName(range.getName()))
+                continue;
+            for (int j = range.getStart(); j <= range.getEnd(); j++) {
+                SolutionData solutionData = new SolutionData();
+                solutionData.setAddress(range.getName() + j);
+                Object value = getDataBtAddress(sheet, range.getName() + j);
+                if (!(value instanceof Double)) {
+                    continue;
+                }
+                List<Long> result = find(inputList, ((Double) value).longValue());
+                if (result != null && !result.isEmpty()) {
+                    solutionData.setList(result);
+                }
+                response.add(solutionData);
+            }
         }
         return response;
     }
@@ -53,6 +58,8 @@ public class Solution {
         List<Long> list = new LinkedList<>();
         for (int i = 0; i < ranges.size(); i++) {
             Range range = ranges.get(i);
+            if (!checkColumnName(range.getName()))
+                continue;
             for (int j = range.getStart(); j <= range.getEnd(); j++) {
                 Object value = getDataBtAddress(sheet, range.getName() + j);
                 if (value instanceof Long)

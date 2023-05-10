@@ -16,6 +16,7 @@ import vn.core.ReadFile;
 import vn.core.Solution;
 import vn.core.WriteFile;
 import vn.core.accountant.dto.ConvertData;
+import vn.core.accountant.dto.Range;
 import vn.core.accountant.dto.SolutionData;
 import vn.core.accountant.dto.UploadFile;
 
@@ -24,6 +25,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
+import java.util.function.Predicate;
 
 @Controller
 public class PaymentCalculationController {
@@ -38,7 +40,8 @@ public class PaymentCalculationController {
     public String upload(UploadFile uploadFile, Model model) {
         MultipartFile multipartFile = uploadFile.getMultipartFile();
         try {
-            ConvertData data = ReadFile.getFromFileExcel(multipartFile);
+            ConvertData data = ReadFile.getFromFileExcel(multipartFile, uploadFile.getSheetName());
+            data.setSheetName(uploadFile.getSheetName());
             model.addAttribute("data", data);
         } catch (IOException e) {
             e.printStackTrace();
@@ -50,6 +53,10 @@ public class PaymentCalculationController {
     @PostMapping(value = "/payment-calculation/calculation")
     public ResponseEntity<Resource> calculation(ConvertData data, Model model) {
         try {
+            Predicate<Range> predicate = range -> range.getName() == null || range.getStart() == null || range.getEnd() == null;
+            data.getValues().removeIf(predicate);
+            data.getTargets().removeIf(predicate);
+            //
             List<SolutionData> solutionData = Solution.calculator(data);
 
             WriteFile.saveFile(solutionData, data);

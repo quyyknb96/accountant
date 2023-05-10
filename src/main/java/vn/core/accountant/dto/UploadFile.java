@@ -9,5 +9,6 @@ import org.springframework.web.multipart.MultipartFile;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UploadFile {
+    private String sheetName;
     private MultipartFile multipartFile;
 }

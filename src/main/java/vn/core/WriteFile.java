@@ -2,6 +2,7 @@ package vn.core;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.logging.log4j.util.Strings;
 import org.apache.poi.ss.util.CellReference;
 import org.apache.poi.ss.util.CellUtil;
 import org.apache.poi.xssf.usermodel.XSSFCell;
@@ -23,7 +24,10 @@ public class WriteFile {
         FileInputStream inputStream = new FileInputStream(fileExcelPath);
         workbook = new XSSFWorkbook(inputStream);
         XSSFSheet sheet;
-        sheet = workbook.getSheet("VNPT");
+        if (Strings.isBlank(convertData.getSheetName()))
+            sheet = workbook.getSheetAt(0);
+        else
+            sheet = workbook.getSheet(convertData.getSheetName());
 
         for (int i = 0; i < data.size(); i++) {
             SolutionData solution = data.get(i);

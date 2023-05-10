@@ -11,6 +11,7 @@ import java.util.List;
 @AllArgsConstructor
 public class ConvertData {
     private String filename;
+    private String sheetName;
     private List<Range> values;
     private List<Range> targets;
 }
