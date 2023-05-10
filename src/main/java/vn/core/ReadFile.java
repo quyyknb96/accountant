@@ -15,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 import vn.core.accountant.dto.ConvertData;
 import vn.core.accountant.dto.IndexCell;
 import vn.core.accountant.dto.Range;
+import vn.core.accountant.util.FileUtil;
 
 import java.io.*;
 import java.util.Iterator;
@@ -30,7 +31,7 @@ public class ReadFile {
     private static final String REGEX_TARGET = "Tiền về\\s*(\\d{1,2})(\\S|\\s)(\\d{1,2})(\\S|\\s)(\\d{2,4})";
 
     public static ConvertData getFromFileExcel(MultipartFile multipartFile, String sheetName) throws IOException {
-        File folderUpload = new File("/opt");
+        File folderUpload = new File(FileUtil.PATH_TEMP);
         if (!folderUpload.exists()) {
             folderUpload.mkdirs();
         }
@@ -38,7 +39,7 @@ public class ReadFile {
         InputStream inputStream = new BufferedInputStream(multipartFile.getInputStream());
         //
         String fileExtension = FilenameUtils.getExtension(multipartFile.getOriginalFilename());
-        File file = new File( "/opt/input." + fileExtension);
+        File file = new File( FileUtil.PATH_TEMP + "/" + FileUtil.FILE_NAME_INPUT + "."+ fileExtension);
         OutputStream outputStream = new FileOutputStream(file);
         IOUtils.copy(inputStream, outputStream);
         outputStream.close();

@@ -19,6 +19,7 @@ import vn.core.accountant.dto.ConvertData;
 import vn.core.accountant.dto.Range;
 import vn.core.accountant.dto.SolutionData;
 import vn.core.accountant.dto.UploadFile;
+import vn.core.accountant.util.FileUtil;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -61,12 +62,12 @@ public class PaymentCalculationController {
 
             WriteFile.saveFile(solutionData, data);
             HttpHeaders headers = new HttpHeaders();
-            headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=output_" + new Date().getTime() + "." + FilenameUtils.getExtension(data.getFilename()));
+            headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + FileUtil.FILE_NAME_OUTPUT + "_" + new Date().getTime() + "." + FilenameUtils.getExtension(data.getFilename()));
             headers.add("Cache-Control", "no-cache, no-store, must-revalidate");
             headers.add("Pragma", "no-cache");
             headers.add("Expires", "0");
 
-            File file = new File("/opt/input." + FilenameUtils.getExtension(data.getFilename()));
+            File file = new File(FileUtil.PATH_TEMP + "/" + FileUtil.FILE_NAME_INPUT + "." + FilenameUtils.getExtension(data.getFilename()));
 
             InputStreamResource resource = new InputStreamResource(new FileInputStream(file));
 

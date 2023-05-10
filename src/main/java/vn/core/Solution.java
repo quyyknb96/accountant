@@ -1,11 +1,13 @@
 package vn.core;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.util.Strings;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import vn.core.accountant.dto.ConvertData;
 import vn.core.accountant.dto.Range;
 import vn.core.accountant.dto.SolutionData;
+import vn.core.accountant.util.FileUtil;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -17,7 +19,7 @@ import static vn.core.accountant.util.ExcelUtil.getDataBtAddress;
 public class Solution {
 
     public static List<SolutionData> calculator(ConvertData data) throws IOException {
-        String fileExcelPath = "/opt/input.xlsx";
+        String fileExcelPath = FileUtil.PATH_TEMP + "/" + FileUtil.FILE_NAME_INPUT + "." + FilenameUtils.getExtension(data.getFilename());
         XSSFWorkbook workbook;
         FileInputStream inputStream = new FileInputStream(fileExcelPath);
         workbook = new XSSFWorkbook(inputStream);

@@ -1,7 +1,6 @@
 package vn.core;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.util.Strings;
 import org.apache.poi.ss.util.CellReference;
 import org.apache.poi.ss.util.CellUtil;
@@ -13,15 +12,18 @@ import vn.core.accountant.dto.ConvertData;
 import vn.core.accountant.dto.IndexCell;
 import vn.core.accountant.dto.SolutionData;
 import vn.core.accountant.util.ExcelUtil;
+import vn.core.accountant.util.FileUtil;
 
-import java.io.*;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.List;
 
 public class WriteFile {
     public static void saveFile(List<SolutionData> data, ConvertData convertData) throws IOException {
-        String fileExcelPath = "/opt/input." + FilenameUtils.getExtension(convertData.getFilename());
-        XSSFWorkbook workbook;
+        String fileExcelPath = FileUtil.PATH_TEMP + "/" + FileUtil.FILE_NAME_INPUT + "." + FilenameUtils.getExtension(convertData.getFilename());
         FileInputStream inputStream = new FileInputStream(fileExcelPath);
+        XSSFWorkbook workbook;
         workbook = new XSSFWorkbook(inputStream);
         XSSFSheet sheet;
         if (Strings.isBlank(convertData.getSheetName()))
@@ -34,7 +36,7 @@ public class WriteFile {
             IndexCell indexCell = ExcelUtil.getIndexCell(solution.getAddress());
             if (indexCell == null)
                 continue;
-            for (int j = 0;  j < solution.getList().size(); j++) {
+            for (int j = 0; j < solution.getList().size(); j++) {
                 CellReference cellReference = new CellReference(ExcelUtil.nextColumn(indexCell.getColName(), j + 2) + indexCell.getRowNum());
                 XSSFRow row = sheet.getRow(cellReference.getRow());
                 if (row == null)
