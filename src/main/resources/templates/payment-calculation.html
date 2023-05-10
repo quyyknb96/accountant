@@ -13,7 +13,7 @@
         <h3>Upload File</h3>
         <form class="col-sm-8 col-md-8" method="post" th:action="@{/payment-calculation/uploadFile}" enctype="multipart/form-data" th:object="${uploadFile}">
             <label class="form-label">File:</label>
-            <input class="form-control" type="file" th:field="*{multipartFile}" /> <br /> <br />
+            <input class="form-control" type="file" th:field="*{multipartFile}" required/> <br /> <br />
             <label class="form-label">Sheet name:</label>
             <input type="text" class="form-control" th:field="*{sheetName}" placeholder="if field is not entered, default get first sheet of file"> <br /> <br />
             <input class="btn btn-primary" type="submit" value="Process" />
