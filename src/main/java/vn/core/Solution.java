@@ -191,5 +191,25 @@ public class Solution {
         return null;
     }
 
+    public static List<Long> sum5(List<Long> nums, long target) {
+        int n = nums.size();
+        for (int i = 0; i < n - 3; i++) {
+            for (int j = i + 1; j < n - 2; j++) {
+                int low = j + 1;
+                int high = n - 1;
+                long sum = target - nums.get(i) - nums.get(j);
+                while (low < high) {
+                    if (nums.get(low) + nums.get(high) == sum) {
+                        return Arrays.asList(nums.get(i), nums.get(j), nums.get(low), nums.get(high));
+                    } else if (nums.get(low) + nums.get(high) < sum) {
+                        low++;
+                    } else
+                        high--;
+                }
+            }
+        }
+        return null;
+    }
+
 
 }
