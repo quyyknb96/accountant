@@ -87,7 +87,7 @@ public class Solution {
         List<Long> list;
         switch (level) {
             case 0:
-                list = sum1(nums, target);
+                list = sum1(nums, target - 10);
                 if (list != null)
                     return list;
                 break;
@@ -97,7 +97,7 @@ public class Solution {
                     return list;
                 break;
             case 2:
-                list = sum3(nums, target);
+                list = sum3(nums, target - 20);
                 if (list != null)
                     return list;
                 break;
