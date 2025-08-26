@@ -60,7 +60,7 @@ public class Solution {
         List<Long> list = new LinkedList<>();
         for (int i = 0; i < ranges.size(); i++) {
             Range range = ranges.get(i);
-            if (!checkColumnName(range.getName()))
+            if (!checkColumnName(range.getName().toLowerCase()))
                 continue;
             for (int j = range.getStart(); j <= range.getEnd(); j++) {
                 Object value = getDataBtAddress(sheet, range.getName() + j);
@@ -87,7 +87,7 @@ public class Solution {
         List<Long> list;
         switch (level) {
             case 0:
-                list = sum1(nums, target);
+                list = sum1(nums.subList(1,10), target);
                 if (list != null)
                     return list;
                 break;
